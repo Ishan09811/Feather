@@ -12,12 +12,7 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
             implementation("org.jetbrains.compose.components:components-resources:1.10.0")
-            implementation(compose.preview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
         }
@@ -28,6 +23,8 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation("me.friwi:jcefmaven:141.0.10")
+            implementation("com.formdev:flatlaf:3.7")
+            implementation("com.formdev:flatlaf-extras:3.7")
         }
     }
 }
@@ -38,9 +35,19 @@ compose.desktop {
         mainClass = "io.github.feather_browser.feather.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "io.github.feather_browser.feather"
+            targetFormats(TargetFormat.Msi)
+            packageName = "FeatherBrowser"
             packageVersion = "1.0.0"
+
+            windows {
+                console = true
+            }
+        }
+
+        buildTypes.release {
+            proguard {
+                isEnabled = false
+            }
         }
     }
 }

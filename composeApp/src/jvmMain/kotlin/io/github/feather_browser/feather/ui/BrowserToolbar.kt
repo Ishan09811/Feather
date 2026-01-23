@@ -19,6 +19,9 @@ import javax.swing.JTextField
 import javax.swing.event.DocumentListener
 import javax.swing.border.EmptyBorder
 import javax.swing.event.DocumentEvent
+import com.formdev.flatlaf.extras.FlatSVGIcon
+import feather.composeapp.generated.resources.Res
+import kotlinx.coroutines.runBlocking
 
 class BrowserToolbar(
     initialUrl: String,
@@ -33,7 +36,7 @@ class BrowserToolbar(
 
     init {
         preferredSize = Dimension(0, 72)
-        background = Color(0xFA, 0xFA, 0xFA)
+        //background = Color(0xFA, 0xFA, 0xFA)
 
         textField = JTextField(initialUrl).apply {
             font = Font("Segoe UI", Font.PLAIN, 14)
@@ -52,19 +55,23 @@ class BrowserToolbar(
             override fun changedUpdate(e: DocumentEvent?) = onUrlChange(textField.text)
         })
 
-        val searchIcon = JLabel(drawableResourceToIcon("drawable/ic_search.svg"))
+        val searchIcon = runBlocking {
+            JLabel(FlatSVGIcon(Res.readBytes("drawable/ic_search.svg").inputStream()))
+        }
 
-        val closeIcon = JLabel(drawableResourceToIcon("drawable/ic_close.svg")).apply {
-            cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
-            addMouseListener(object : MouseAdapter() {
-                override fun mouseClicked(e: MouseEvent) {
-                    textField.text = ""
-                }
-            })
+        val closeIcon = runBlocking {
+            JLabel(FlatSVGIcon(Res.readBytes("drawable/ic_close.svg").inputStream())).apply {
+                cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                addMouseListener(object : MouseAdapter() {
+                    override fun mouseClicked(e: MouseEvent) {
+                        textField.text = ""
+                    }
+                })
+            }
         }
 
         val fieldPanel = RoundedPanel(40).apply {
-            background = Color(0xF1, 0xF3, 0xF4)
+            //background = Color(0xF1, 0xF3, 0xF4)
             border = EmptyBorder(6, 12, 6, 12)
             preferredSize = Dimension(0, 44)
             add(searchIcon, BorderLayout.WEST)
