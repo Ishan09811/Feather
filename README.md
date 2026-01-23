@@ -1,13 +1,16 @@
-This is a Kotlin Multiplatform project targeting Desktop (JVM).
+# 🪶 Feather Browser
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+Feather Browser is an experimental, lightweight desktop web browser focused on performance, low memory usage, and native integration.
+It is built using Kotlin, JCEF (Java Chromium Embedded Framework), and Swing Desktop.
+
+Feather Browser is currently in active development and not intended for daily browsing yet.
+
+### TODO:
+- Tab management
+- Downloads manager
+- History & bookmarks
+- Performance optimizations
+- Cross-platform support
 
 ### Build and Run Desktop (JVM) Application
 
@@ -25,3 +28,16 @@ in your IDE’s toolbar or run it directly from the terminal:
 ---
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+
+### Contributing
+Contributions are welcome!
+If you want to help:
+- Open an issue
+- Submit a pull request
+- Share ideas even small improvements are appreciated
+
+### Acknowledgements
+- Chromium Project
+- JCEF
+- JetBrains (Kotlin)
+- Open-source community
