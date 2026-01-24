@@ -10,14 +10,11 @@ import java.awt.event.MouseEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.awt.event.MouseAdapter
-import java.awt.event.ComponentAdapter
-import java.awt.event.ComponentEvent
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.SwingUtilities
 import com.formdev.flatlaf.FlatLightLaf
-import io.github.feather_browser.feather.ui.applyRoundedCorners
-import io.github.feather_browser.feather.ui.isDarkMode
+import io.github.feather_browser.feather.ui.ThemeManager.isDarkMode
 
 fun main() {
     lateinit var frame: JFrame
@@ -37,7 +34,7 @@ fun main() {
         }
         FlatLaf.updateUILater()
         frame = JFrame("Feather")
-        frame.isUndecorated = true
+        frame.isUndecorated = false
         frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
         frame.layout = BorderLayout()
 
@@ -46,14 +43,7 @@ fun main() {
 
         frame.setSize(1200, 800)
         frame.setLocationRelativeTo(null)
-        applyRoundedCorners(frame, 20)
         frame.isVisible = true
-
-        frame.addComponentListener(object : ComponentAdapter() {
-            override fun componentResized(e: ComponentEvent) {
-                applyRoundedCorners(frame, 20)
-            }
-        })
     }
 
     Thread {
@@ -68,12 +58,14 @@ fun main() {
                     currentUrl = url
                 },
                 onNavigate = { engine.loadUrl(currentUrl) },
-                frame = frame
+                onBack = { engine.goBack() },
+                onForward = { engine.goForward() }
             )
 
             val browserPanel = engine.createBrowser(currentUrl)
 
             frame.contentPane.removeAll()
+            frame.rootPane.putClientProperty("FlatLaf.fullWindowContent", true)
             frame.add(toolbar, BorderLayout.NORTH)
             frame.add(browserPanel, BorderLayout.CENTER)
 

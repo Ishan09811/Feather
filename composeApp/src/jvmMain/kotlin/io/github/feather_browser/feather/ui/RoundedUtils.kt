@@ -5,8 +5,6 @@ import java.awt.BorderLayout
 import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.RenderingHints
-import java.awt.geom.RoundRectangle2D
-import javax.swing.JFrame
 import javax.swing.JPanel
 
 class RoundedPanel(private val radius: Int) : JPanel(BorderLayout()) {
@@ -24,16 +22,5 @@ class RoundedPanel(private val radius: Int) : JPanel(BorderLayout()) {
 
         g2.dispose()
     }
-}
-
-fun applyRoundedCorners(frame: JFrame, radius: Int) {
-    frame.shape = RoundRectangle2D.Double(
-        0.0,
-        0.0,
-        frame.width.toDouble(),
-        frame.height.toDouble(),
-        radius.toDouble(),
-        radius.toDouble()
-    )
 }
 

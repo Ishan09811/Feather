@@ -7,11 +7,9 @@ import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.Font
 import java.awt.KeyboardFocusManager
-import java.awt.Point
 import java.awt.event.MouseEvent
 import java.awt.event.MouseAdapter
-import java.awt.event.MouseMotionAdapter
-import javax.swing.JFrame
+import java.awt.event.ComponentAdapter
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JSeparator
@@ -22,25 +20,40 @@ import javax.swing.event.DocumentEvent
 import com.formdev.flatlaf.extras.FlatSVGIcon
 import feather.composeapp.generated.resources.Res
 import kotlinx.coroutines.runBlocking
+import java.awt.FlowLayout
+import java.awt.GridBagLayout
+import java.awt.event.ComponentEvent
+import javax.swing.Box
+import javax.swing.BoxLayout
+import javax.swing.UIManager
+import kotlin.math.roundToInt
 
 class BrowserToolbar(
     initialUrl: String,
     onUrlChange: (String) -> Unit,
     onNavigate: () -> Unit,
-    frame: JFrame
+    onBack: () -> Unit,
+    onForward: () -> Unit
 ) : JPanel(BorderLayout()) {
-
-    private var dragStartWindow: Point? = null
-    private var dragStartScreen: Point? = null
-    lateinit var textField: JTextField
+    var textField: JTextField
 
     init {
-        preferredSize = Dimension(0, 72)
+        layout = BoxLayout(this, BoxLayout.Y_AXIS)
+        maximumSize = Dimension(0, 100)
         //background = Color(0xFA, 0xFA, 0xFA)
+
+        val tabsRow = JPanel(FlowLayout(FlowLayout.LEFT, 8, 0)).apply {
+            isOpaque = false
+            border = EmptyBorder(6, 12, 0, 12)
+            preferredSize = Dimension(0, 28)
+        }
+
+        tabsRow.add(tab("Tab 1"))
+        tabsRow.add(tab("+"))
 
         textField = JTextField(initialUrl).apply {
             font = Font("Segoe UI", Font.PLAIN, 14)
-            border = EmptyBorder(10, 18, 10, 18)
+            border = EmptyBorder(0, 6, 0, 6)
             isOpaque = false
             background = Color(0, 0, 0, 0)
         }
@@ -55,12 +68,65 @@ class BrowserToolbar(
             override fun changedUpdate(e: DocumentEvent?) = onUrlChange(textField.text)
         })
 
+        val backIcon = runBlocking {
+            JLabel(
+                FlatSVGIcon(
+                    Res.readBytes(
+                        "drawable/ic_arrow_back.svg"
+                    ).inputStream()
+                ).derive(
+                    ThemeManager.ICON_SIZE, ThemeManager.ICON_SIZE
+                )
+            ).apply {
+                cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                addMouseListener(object : MouseAdapter() {
+                    override fun mouseClicked(e: MouseEvent) {
+                        onBack()
+                    }
+                })
+            }
+        }
+
+        val forwardIcon = runBlocking {
+            JLabel(
+                FlatSVGIcon(
+                    Res.readBytes(
+                        "drawable/ic_arrow_forward.svg"
+                    ).inputStream()
+                ).derive(
+                    ThemeManager.ICON_SIZE, ThemeManager.ICON_SIZE
+                )
+            ).apply {
+                cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                addMouseListener(object : MouseAdapter() {
+                    override fun mouseClicked(e: MouseEvent) {
+                        onForward()
+                    }
+                })
+            }
+        }
+
+        val navPanel = JPanel(FlowLayout(FlowLayout.LEFT, 6, 0)).apply {
+            border = EmptyBorder(20, 10, 20, 10)
+            isOpaque = false
+            add(backIcon)
+            add(forwardIcon)
+        }
+
         val searchIcon = runBlocking {
-            JLabel(FlatSVGIcon(Res.readBytes("drawable/ic_search.svg").inputStream()))
+            JLabel(
+                FlatSVGIcon(
+                    Res.readBytes(
+                        "drawable/ic_search.svg"
+                    ).inputStream()
+                ).derive(
+                ThemeManager.ICON_SIZE, ThemeManager.ICON_SIZE
+                )
+            )
         }
 
         val closeIcon = runBlocking {
-            JLabel(FlatSVGIcon(Res.readBytes("drawable/ic_close.svg").inputStream())).apply {
+            JLabel(FlatSVGIcon(Res.readBytes("drawable/ic_close.svg").inputStream()).derive(ThemeManager.ICON_SIZE,ThemeManager.ICON_SIZE)).apply {
                 cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
                 addMouseListener(object : MouseAdapter() {
                     override fun mouseClicked(e: MouseEvent) {
@@ -70,22 +136,48 @@ class BrowserToolbar(
             }
         }
 
-        val fieldPanel = RoundedPanel(40).apply {
-            //background = Color(0xF1, 0xF3, 0xF4)
-            border = EmptyBorder(6, 12, 6, 12)
-            preferredSize = Dimension(0, 44)
+        val fieldPanel = RoundedPanel(80).apply {
+            background = UIManager.getColor("TextField.background")
+            layout = BorderLayout(4, 0)
+            isOpaque = false
+            border = EmptyBorder(4, 8, 4, 8)
+            preferredSize = Dimension(this@BrowserToolbar.width, 42)
+
             add(searchIcon, BorderLayout.WEST)
             add(textField, BorderLayout.CENTER)
             add(closeIcon, BorderLayout.EAST)
         }
 
-        val centerWrapper = JPanel(BorderLayout()).apply {
+        addComponentListener(object : ComponentAdapter() {
+            override fun componentResized(e: ComponentEvent) {
+                val available = (width / 1.1).roundToInt()
+                fieldPanel.preferredSize = Dimension(available, 42)
+                fieldPanel.revalidate()
+            }
+        })
+
+        val fieldWrapper = JPanel(GridBagLayout()).apply {
             isOpaque = false
-            border = EmptyBorder(10, 12, 10, 12)
-            add(fieldPanel, BorderLayout.CENTER)
+            add(fieldPanel)
         }
 
-        add(centerWrapper, BorderLayout.CENTER)
+        val leftGroup = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.X_AXIS)
+            isOpaque = false
+
+            add(navPanel)
+            add(Box.createHorizontalStrut(8))
+            add(fieldWrapper)
+        }
+
+        val centerWrapper = JPanel(BorderLayout(8, 0)).apply {
+            isOpaque = false
+            border = EmptyBorder(2, 12, 6, 12)
+            add(leftGroup, BorderLayout.WEST)
+        }
+
+        add(tabsRow)
+        add(centerWrapper)
         add(JSeparator(), BorderLayout.SOUTH)
 
         textField.addMouseListener(object : MouseAdapter() {
@@ -94,24 +186,12 @@ class BrowserToolbar(
                 textField.requestFocusInWindow()
             }
         })
+    }
 
-        addMouseListener(object : MouseAdapter() {
-            override fun mousePressed(e: MouseEvent) {
-                dragStartWindow = frame.location
-                dragStartScreen = e.locationOnScreen
-            }
-        })
-
-        addMouseMotionListener(object : MouseMotionAdapter() {
-            override fun mouseDragged(e: MouseEvent) {
-                val win = dragStartWindow ?: return
-                val start = dragStartScreen ?: return
-
-                val dx = e.xOnScreen - start.x
-                val dy = e.yOnScreen - start.y
-
-                frame.setLocation(win.x + dx, win.y + dy)
-            }
-        })
+    fun tab(title: String) = JLabel(title).apply {
+        preferredSize = Dimension(120, 20)
+        font = Font("Segoe UI", Font.PLAIN, 13)
+        border = EmptyBorder(4, 10, 4, 10)
+        cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
     }
 }

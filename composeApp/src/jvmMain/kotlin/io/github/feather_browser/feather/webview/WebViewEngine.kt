@@ -79,14 +79,14 @@ class WebViewEngine(private var onBuildProgress: ((String) -> Unit)? = null) : W
     }
 
     override fun goBack() {
-        browser.goBack()
+        if (::browser.isInitialized) browser.goBack()
     }
 
     override fun goForward() {
-        browser.goForward()
+        if (::browser.isInitialized) browser.goForward()
     }
 
     override fun reload() {
-        browser.reload()
+        if (::browser.isInitialized) browser.reload()
     }
 }
