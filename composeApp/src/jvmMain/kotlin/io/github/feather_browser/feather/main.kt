@@ -3,7 +3,8 @@ package io.github.feather_browser.feather
 
 import com.formdev.flatlaf.FlatDarkLaf
 import com.formdev.flatlaf.FlatLaf
-import io.github.feather_browser.feather.ui.BrowserToolbar
+import io.github.feather_browser.feather.ui.compose.BrowserToolbar as ComposeBrowserToolbar
+import io.github.feather_browser.feather.ui.swing.BrowserToolbar as SwingBrowserToolbar
 import io.github.feather_browser.feather.webview.WebViewEngine
 import java.awt.BorderLayout
 import java.awt.event.MouseEvent
@@ -14,7 +15,7 @@ import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.SwingUtilities
 import com.formdev.flatlaf.FlatLightLaf
-import io.github.feather_browser.feather.ui.ThemeManager.isDarkMode
+import io.github.feather_browser.feather.ui.swing.ThemeManager.isDarkMode
 
 fun main() {
     lateinit var frame: JFrame
@@ -52,7 +53,19 @@ fun main() {
         SwingUtilities.invokeLater {
             var currentUrl = "https://google.com"
 
-            val toolbar = BrowserToolbar(
+            // TODO: Fix Compose BrowserToolbar ui
+            /*val toolbar = ComposeBrowserToolbar(
+                frame = frame,
+                initialUrl = currentUrl,
+                onUrlChange = { url ->
+                    currentUrl = url
+                },
+                onNavigate = { engine.loadUrl(currentUrl) },
+                onBack = { engine.goBack() },
+                onForward = { engine.goForward() }
+            )*/
+
+            val toolbar = SwingBrowserToolbar(
                 initialUrl = currentUrl,
                 onUrlChange = { url ->
                     currentUrl = url
@@ -74,12 +87,16 @@ fun main() {
 
             engine.browser.uiComponent.addMouseListener(object : MouseAdapter() {
                 override fun mousePressed(e: MouseEvent) {
-                    toolbar.textField.caret.isVisible = false
+                    if (toolbar is SwingBrowserToolbar) {
+                        toolbar.textField.caret.isVisible = false
+                    } else {
+                        // TODO: Fix Compose BrowserToolbar ui
+                    }
                 }
             })
 
             engine.setOnUrlChanged { url ->
-                toolbar.textField.text = url
+                if (toolbar is SwingBrowserToolbar) toolbar.textField.text = url else currentUrl = url
             }
 
             frame.isVisible = true

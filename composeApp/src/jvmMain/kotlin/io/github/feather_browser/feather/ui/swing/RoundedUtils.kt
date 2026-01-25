@@ -1,5 +1,4 @@
-
-package io.github.feather_browser.feather.ui
+package io.github.feather_browser.feather.ui.swing
 
 import java.awt.BorderLayout
 import java.awt.Graphics

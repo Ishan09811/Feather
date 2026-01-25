@@ -1,8 +1,7 @@
-
-package io.github.feather_browser.feather.ui
+package io.github.feather_browser.feather.ui.swing
 
 object ThemeManager {
-    val ICON_SIZE = 18
+    const val ICON_SIZE = 18
 
     fun isDarkMode(): Boolean {
         return try {

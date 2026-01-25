@@ -1,5 +1,4 @@
-
-package io.github.feather_browser.feather.ui
+package io.github.feather_browser.feather.ui.swing
 
 import java.awt.BorderLayout
 import java.awt.Color
@@ -120,7 +119,7 @@ class BrowserToolbar(
                         "drawable/ic_search.svg"
                     ).inputStream()
                 ).derive(
-                ThemeManager.ICON_SIZE, ThemeManager.ICON_SIZE
+                    ThemeManager.ICON_SIZE, ThemeManager.ICON_SIZE
                 )
             )
         }

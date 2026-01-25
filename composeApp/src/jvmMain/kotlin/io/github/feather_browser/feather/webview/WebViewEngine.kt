@@ -9,6 +9,7 @@ import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
 import org.cef.handler.CefDisplayHandlerAdapter
 import java.awt.BorderLayout
+import java.nio.file.Paths
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 
@@ -25,6 +26,12 @@ class WebViewEngine(private var onBuildProgress: ((String) -> Unit)? = null) : W
         val builder = CefAppBuilder()
         builder.setInstallDir(java.io.File(System.getProperty("user.home"), ".feather-browser/jcef"))
         builder.cefSettings.windowless_rendering_enabled = false
+        builder.cefSettings.root_cache_path =
+            Paths.get(
+                System.getProperty("user.home"),
+                ".feather-browser",
+                "cef-cache"
+            ).toAbsolutePath().toString()
 
         builder.setProgressHandler { state, percent ->
             SwingUtilities.invokeLater {
