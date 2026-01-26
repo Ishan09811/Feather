@@ -3,27 +3,48 @@ package io.github.feather_browser.feather
 
 import com.formdev.flatlaf.FlatDarkLaf
 import com.formdev.flatlaf.FlatLaf
-import io.github.feather_browser.feather.ui.compose.BrowserToolbar as ComposeBrowserToolbar
-import io.github.feather_browser.feather.ui.swing.BrowserToolbar as SwingBrowserToolbar
+import com.formdev.flatlaf.FlatLightLaf
+import io.github.feather_browser.feather.ui.swing.ThemeManager.isDarkMode
 import io.github.feather_browser.feather.webview.WebViewEngine
 import java.awt.BorderLayout
+import java.awt.GraphicsEnvironment
+import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
-import java.awt.event.MouseAdapter
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.SwingUtilities
-import com.formdev.flatlaf.FlatLightLaf
-import io.github.feather_browser.feather.ui.swing.ThemeManager.isDarkMode
+import io.github.feather_browser.feather.ui.swing.BrowserToolbar as SwingBrowserToolbar
+
 
 fun main() {
     lateinit var frame: JFrame
     lateinit var loadingLabel: JLabel
+    val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
+
     val onBuildProgress: (String) -> Unit = { progress ->
         SwingUtilities.invokeLater {
             loadingLabel.text = progress
             loadingLabel.repaint()
+        }
+    }
+
+    val onFullscreenModeChange: (Boolean) -> Unit = { fullscreen ->
+        SwingUtilities.invokeLater {
+            if (fullscreen) {
+                frame.dispose()
+                frame.isUndecorated = true
+                frame.contentPane.getComponent(0).isVisible = false
+                device.fullScreenWindow = frame
+                frame.isVisible = true
+            } else {
+                device.fullScreenWindow = null
+                frame.dispose()
+                frame.isUndecorated = false
+                frame.contentPane.getComponent(0).isVisible = true
+                frame.isVisible = true
+            }
         }
     }
 
@@ -48,7 +69,7 @@ fun main() {
     }
 
     Thread {
-        val engine = WebViewEngine(onBuildProgress)
+        val engine = WebViewEngine(onBuildProgress, onFullscreenModeChange)
 
         SwingUtilities.invokeLater {
             var currentUrl = "https://google.com"

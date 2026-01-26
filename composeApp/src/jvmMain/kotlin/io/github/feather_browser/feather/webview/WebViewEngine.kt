@@ -13,7 +13,7 @@ import java.nio.file.Paths
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 
-class WebViewEngine(private var onBuildProgress: ((String) -> Unit)? = null) : WebEngine {
+class WebViewEngine(private var onBuildProgress: ((String) -> Unit)? = null, onFullscreenModeChange: (Boolean) -> Unit) : WebEngine {
 
     private val cefApp: CefApp
     private val client: CefClient
@@ -50,6 +50,13 @@ class WebViewEngine(private var onBuildProgress: ((String) -> Unit)? = null) : W
             ) {
                 onUrlChanged?.invoke(url)
             }
+
+            override fun onFullscreenModeChange(
+                browser: CefBrowser?,
+                fullscreen: Boolean
+            ) {
+                onFullscreenModeChange(fullscreen)
+            }
         })
     }
 
@@ -58,7 +65,7 @@ class WebViewEngine(private var onBuildProgress: ((String) -> Unit)? = null) : W
     }
 
     fun createBrowser(initialUrl: String): JPanel {
-        println("createBrowser() called with ${initialUrl}")
+        println("createBrowser() called with $initialUrl")
         if (::panel.isInitialized) return panel
 
         browser = client.createBrowser(initialUrl, false, false)
