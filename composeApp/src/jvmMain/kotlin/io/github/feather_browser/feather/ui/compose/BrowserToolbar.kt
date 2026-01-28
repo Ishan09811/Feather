@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
@@ -43,6 +44,7 @@ import feather.composeapp.generated.resources.ic_arrow_forward
 import feather.composeapp.generated.resources.ic_close
 import feather.composeapp.generated.resources.ic_search
 import org.jetbrains.compose.resources.painterResource
+import java.awt.Color
 import java.awt.Point
 import java.awt.event.MouseEvent
 import javax.swing.JFrame
@@ -50,6 +52,7 @@ import javax.swing.JFrame
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun BrowserToolbar(
+    onBackgroundColorChange: (Color) -> Unit,
     frame: JFrame,
     initialUrl: String,
     onUrlChange: (String) -> Unit,
@@ -61,6 +64,7 @@ fun BrowserToolbar(
         setContent {
             val handler = remember { DragHandler(frame) }
             FeatherTheme {
+                onBackgroundColorChange(Color(MaterialTheme.colorScheme.background.toArgb()))
                 Box(
                     modifier = Modifier.onPointerEvent(PointerEventType.Press) { event ->
                         val awt = event.awtEventOrNull ?: return@onPointerEvent

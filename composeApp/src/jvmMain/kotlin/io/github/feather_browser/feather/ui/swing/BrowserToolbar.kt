@@ -39,7 +39,6 @@ class BrowserToolbar(
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
         maximumSize = Dimension(0, 100)
-        //background = Color(0xFA, 0xFA, 0xFA)
 
         val tabsRow = JPanel(FlowLayout(FlowLayout.LEFT, 8, 0)).apply {
             isOpaque = false

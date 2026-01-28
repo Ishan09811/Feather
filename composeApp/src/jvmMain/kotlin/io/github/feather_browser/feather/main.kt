@@ -1,6 +1,9 @@
 
 package io.github.feather_browser.feather
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.formdev.flatlaf.FlatDarkLaf
 import com.formdev.flatlaf.FlatLaf
 import com.formdev.flatlaf.FlatLightLaf
@@ -15,6 +18,8 @@ import java.awt.event.WindowEvent
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.SwingUtilities
+import javax.swing.UIManager
+import io.github.feather_browser.feather.ui.compose.BrowserToolbar as ComposeBrowserToolbar
 import io.github.feather_browser.feather.ui.swing.BrowserToolbar as SwingBrowserToolbar
 
 
@@ -22,6 +27,7 @@ fun main() {
     lateinit var frame: JFrame
     lateinit var loadingLabel: JLabel
     val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
+    val isComposeEnabled = true
 
     val onBuildProgress: (String) -> Unit = { progress ->
         SwingUtilities.invokeLater {
@@ -72,29 +78,37 @@ fun main() {
         val engine = WebViewEngine(onBuildProgress, onFullscreenModeChange)
 
         SwingUtilities.invokeLater {
-            var currentUrl = "https://google.com"
+            var currentUrl by mutableStateOf("https://google.com")
 
-            // TODO: Fix Compose BrowserToolbar ui
-            /*val toolbar = ComposeBrowserToolbar(
-                frame = frame,
-                initialUrl = currentUrl,
-                onUrlChange = { url ->
-                    currentUrl = url
-                },
-                onNavigate = { engine.loadUrl(currentUrl) },
-                onBack = { engine.goBack() },
-                onForward = { engine.goForward() }
-            )*/
-
-            val toolbar = SwingBrowserToolbar(
-                initialUrl = currentUrl,
-                onUrlChange = { url ->
-                    currentUrl = url
-                },
-                onNavigate = { engine.loadUrl(currentUrl) },
-                onBack = { engine.goBack() },
-                onForward = { engine.goForward() }
-            )
+            // TODO: implement settings
+            val toolbar = if (isComposeEnabled) {
+                ComposeBrowserToolbar(
+                    onBackgroundColorChange = {
+                        if (it != UIManager.getColor("Panel.background")) {
+                            UIManager.put("Panel.background", it)
+                            FlatLaf.updateUI()
+                        }
+                    },
+                    frame = frame,
+                    initialUrl = currentUrl,
+                    onUrlChange = { url ->
+                        currentUrl = url
+                    },
+                    onNavigate = { engine.loadUrl(currentUrl) },
+                    onBack = { engine.goBack() },
+                    onForward = { engine.goForward() }
+                )
+            } else {
+                SwingBrowserToolbar(
+                    initialUrl = currentUrl,
+                    onUrlChange = { url ->
+                        currentUrl = url
+                    },
+                    onNavigate = { engine.loadUrl(currentUrl) },
+                    onBack = { engine.goBack() },
+                    onForward = { engine.goForward() }
+                )
+            }
 
             val browserPanel = engine.createBrowser(currentUrl)
 
@@ -111,7 +125,7 @@ fun main() {
                     if (toolbar is SwingBrowserToolbar) {
                         toolbar.textField.caret.isVisible = false
                     } else {
-                        // TODO: Fix Compose BrowserToolbar ui
+                        // TODO
                     }
                 }
             })
