@@ -3,6 +3,7 @@ package io.github.feather_browser.feather.webview
 
 import io.github.feather_browser.feather.core.WebEngine
 import me.friwi.jcefmaven.CefAppBuilder
+import me.friwi.jcefmaven.EnumProgress
 import org.cef.CefApp
 import org.cef.CefClient
 import org.cef.browser.CefBrowser
@@ -13,7 +14,7 @@ import java.nio.file.Paths
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 
-class WebViewEngine(private var onBuildProgress: ((String) -> Unit)? = null, onFullscreenModeChange: (Boolean) -> Unit) : WebEngine {
+class WebViewEngine(private var onBuildProgress: ((EnumProgress, String) -> Unit)? = null, onFullscreenModeChange: (Boolean) -> Unit) : WebEngine {
 
     private val cefApp: CefApp
     private val client: CefClient
@@ -35,9 +36,10 @@ class WebViewEngine(private var onBuildProgress: ((String) -> Unit)? = null, onF
 
         builder.setProgressHandler { state, percent ->
             SwingUtilities.invokeLater {
-                onBuildProgress?.invoke("$state $percent%")
+                onBuildProgress?.invoke(state, percent.toString())
             }
         }
+
 
         cefApp = builder.build()
         client = cefApp.createClient()
